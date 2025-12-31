@@ -1,244 +1,30 @@
-<div class="container">
-  <div class="abc">
-    <div class="gamename">
-      CONNECT 4
-    </div>
-  </div>
-  <div class="abcd">
-    <div class="row">
-      <div class="col-sm-1">
-        <div class="col-sm-2 firsthole" id="hole00">
-          <input type="submit" *ngIf="present[0][0]" (click)="pressed(0,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div class="col-sm-2 holer" id="hole01">
-          <input type="submit" *ngIf="present[0][1]" (click)="pressed(0,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div class="col-sm-2 holer" id="hole02">
-          <input type="submit" *ngIf="present[0][2]" (click)="pressed(0,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div class="col-sm-2 holer" id="hole03">
-          <input type="submit" *ngIf="present[0][3]" (click)="pressed(0,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div class="col-sm-2 holer" id="hole04">
-          <input type="submit" *ngIf="present[0][4]" (click)="pressed(0,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div class="col-sm-2 holer" id="hole05">
-          <input type="submit" *ngIf="present[0][5]" (click)="pressed(0,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole06" class="col-sm-2 holer" >
-          <input type="submit" *ngIf="present[0][6]" (click)="pressed(0,6,this)" class="eachbutton">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1">
-        <div id="hole10" class="col-sm-2 firsthole">
-          <input type="submit" *ngIf="present[1][0]" (click)="pressed(1,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole11" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][1]" (click)="pressed(1,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole12" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][2]" (click)="pressed(1,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole13" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][3]" (click)="pressed(1,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole14" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][4]" (click)="pressed(1,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole15" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][5]" (click)="pressed(1,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole16" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[1][6]" (click)="pressed(1,6,this)" class="eachbutton">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1">
-        <div id="hole20" class="col-sm-2 firsthole">
-          <input type="submit" *ngIf="present[2][0]" (click)="pressed(2,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole21" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][1]" (click)="pressed(2,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole22" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][2]" (click)="pressed(2,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole23" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][3]" (click)="pressed(2,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole24" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][4]" (click)="pressed(2,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole25" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][5]" (click)="pressed(2,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole26" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[2][6]" (click)="pressed(2,6,this)" class="eachbutton">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1">
-        <div id="hole30" class="col-sm-2 firsthole">
-          <input type="submit" *ngIf="present[3][0]" (click)="pressed(3,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole31" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][1]" (click)="pressed(3,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole32" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][2]" (click)="pressed(3,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole33" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][3]" (click)="pressed(3,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole34" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][4]" (click)="pressed(3,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole35" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][5]" (click)="pressed(3,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole36" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[3][6]" (click)="pressed(3,6,this)" class="eachbutton">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1">
-        <div id="hole40" class="col-sm-2 firsthole">
-          <input type="submit" *ngIf="present[4][0]" (click)="pressed(4,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole41" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][1]" (click)="pressed(4,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole42" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][2]" (click)="pressed(4,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole43" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][3]" (click)="pressed(4,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole44" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][4]" (click)="pressed(4,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole45" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][5]" (click)="pressed(4,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole46" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[4][6]" (click)="pressed(4,6,this)" class="eachbutton">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-1">
-        <div id="hole50" class="col-sm-2 firsthole">
-          <input type="submit" *ngIf="present[5][0]" (click)="pressed(5,0,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole51" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][1]" (click)="pressed(5,1,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole52" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][2]" (click)="pressed(5,2,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole53" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][3]" (click)="pressed(5,3,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole54" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][4]" (click)="pressed(5,4,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole55" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][5]" (click)="pressed(5,5,this)" class="eachbutton">
-        </div>
-      </div>
-      <div class="col-sm-1 gap">
-        <div id="hole56" class="col-sm-2 holer">
-          <input type="submit" *ngIf="present[5][6]" (click)="pressed(5,6,this)" class="eachbutton">
-        </div>
+<div class="game-container">
+  <!-- Game Title -->
+  <header class="game-header">
+    <h1 class="game-title">CONNECT 4</h1>
+  </header>
+
+  <!-- Game Board -->
+  <div class="game-board">
+    <div class="board-row" *ngFor="let row of rows">
+      <div *ngFor="let col of cols" class="board-cell">
+        <div [ngClass]="getCellClass(row, col)"></div>
+        <button *ngIf="isCellClickable(row, col)" (click)="onCellClick(row, col)" class="cell-button"
+          [attr.aria-label]="'Drop piece in column ' + (col + 1)"></button>
       </div>
     </div>
   </div>
-  <div class="scorer">
-    <div class="row">
-      <div class="col-sm-3 scoreshow">
-        P1 : {{player1score}}
-      </div>
-      <div class="col-sm-3 scoreshow">
-        AI : {{player2score}}
-      </div>
+
+  <!-- Score Display -->
+  <div class="score-container">
+    <div class="score-card score-card--player1">
+      <span class="score-label">Player</span>
+      <span class="score-value">{{ player1Score }}</span>
     </div>
-    <br>
-    <br>
+    <div class="score-card score-card--ai">
+      <span class="score-label">AI</span>
+      <span class="score-value">{{ player2Score }}</span>
+    </div>
   </div>
 </div>
 
