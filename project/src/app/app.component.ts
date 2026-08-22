@@ -66,6 +66,11 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    // A full column is not a legal move: ignore the click rather than
+    // advancing the turn, which would hand the AI a free move and flip
+    // turn parity for the rest of the game.
+    if (!this.gameService.canPlay(col)) return;
+
     this.isProcessing = true;
 
     // Player makes move
