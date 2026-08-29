@@ -75,12 +75,6 @@ export class GameService {
         return row;
     }
 
-    /** Remove a piece from a position (used for AI simulation) */
-    removePiece(row: number, col: number): void {
-        this.board[row][col] = EMPTY_CELL;
-        this.columnHeights[col]++;
-    }
-
     /** Increment turn count */
     incrementTurn(): void {
         this.turnCount++;

@@ -2,13 +2,21 @@ import { ComponentFixture, TestBed, fakeAsync, flush } from '@angular/core/testi
 import { AppComponent } from './app.component';
 import { NgToastModule } from 'ng-angular-popup';
 import { GameService } from './services/game.service';
-import { PLAYER_HUMAN, PLAYER_AI, BOARD_WIDTH } from './models/game.types';
+import { AiService } from './services/ai.service';
+import {
+  PLAYER_HUMAN,
+  PLAYER_AI,
+  BOARD_WIDTH,
+  DIFFICULTY_LEVELS,
+  DIFFICULTY_SETTINGS,
+} from './models/game.types';
 import { setBoard, countPieces, HUMAN_TO_MOVE } from '../testing/board-helpers';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let app: AppComponent;
   let game: GameService;
+  let ai: AiService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -19,6 +27,7 @@ describe('AppComponent', () => {
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.componentInstance;
     game = TestBed.inject(GameService);
+    ai = TestBed.inject(AiService);
 
     game.player1Score = 0;
     game.player2Score = 0;
@@ -251,4 +260,100 @@ describe('AppComponent', () => {
       expect(countPieces(game)).toBe(0);
     }));
   });
+
+  describe('difficulty picker', () => {
+    const buttons = () =>
+      Array.from(
+        (fixture.nativeElement as HTMLElement)
+          .querySelectorAll<HTMLButtonElement>('.difficulty-button')
+      );
+
+    it('starts on hard, so the default game is the AI as it always played', () => {
+      expect(app.difficulty).toBe('hard');
+    });
+
+    it('pushes the starting level to the AI on init', () => {
+      ai.setDifficulty('easy');
+
+      app.ngOnInit();
+
+      expect(ai.getDifficulty()).toBe('hard');
+    });
+
+    it('renders one button per level, labelled from the settings table', () => {
+      expect(buttons().length).toBe(DIFFICULTY_LEVELS.length);
+      expect(buttons().map(b => b.textContent?.trim())).toEqual(
+        DIFFICULTY_LEVELS.map(level => DIFFICULTY_SETTINGS[level].label)
+      );
+    });
+
+    it('marks only the selected level as active', () => {
+      const active = buttons().filter(b =>
+        b.classList.contains('difficulty-button--active')
+      );
+
+      expect(active.length).toBe(1);
+      expect(active[0].textContent?.trim())
+        .toBe(DIFFICULTY_SETTINGS[app.difficulty].label);
+      expect(active[0].getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('switches level when a button is clicked', () => {
+      const easy = buttons()[DIFFICULTY_LEVELS.indexOf('easy')];
+
+      easy.click();
+      fixture.detectChanges();
+
+      expect(app.difficulty).toBe('easy');
+      expect(ai.getDifficulty()).toBe('easy');
+      expect(easy.classList).toContain('difficulty-button--active');
+    });
+
+    it('tells the AI service about the change', () => {
+      app.onDifficultyChange('expert');
+
+      expect(ai.getDifficulty()).toBe('expert');
+    });
+
+    it('ignores a change while a turn is still being processed', () => {
+      app.isProcessing = true;
+
+      app.onDifficultyChange('easy');
+
+      expect(app.difficulty).toBe('hard');
+      expect(ai.getDifficulty()).toBe('hard');
+    });
+
+    it('does not re-apply the level already selected', () => {
+      const setDifficulty = spyOn(ai, 'setDifficulty');
+
+      app.onDifficultyChange(app.difficulty);
+
+      expect(setDifficulty).not.toHaveBeenCalled();
+    });
+
+    it('disables the buttons while a turn is being processed', () => {
+      app.isProcessing = true;
+      fixture.detectChanges();
+
+      expect(buttons().every(b => b.disabled)).toBeTrue();
+    });
+
+    it('keeps the board when the level changes mid-game', () => {
+      app.onCellClick(0, 3);
+      const piecesBefore = countPieces(game);
+
+      app.onDifficultyChange('easy');
+
+      expect(countPieces(game)).toBe(piecesBefore);
+    });
+
+    it('labels every level', () => {
+      DIFFICULTY_LEVELS.forEach(level => {
+        expect(app.difficultyLabel(level))
+          .toBe(DIFFICULTY_SETTINGS[level].label);
+      });
+    });
+  });
+
 });

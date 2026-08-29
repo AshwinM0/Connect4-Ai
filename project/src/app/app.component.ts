@@ -8,6 +8,9 @@ import {
   PLAYER_HUMAN,
   PLAYER_AI,
   Player,
+  Difficulty,
+  DIFFICULTY_LEVELS,
+  DIFFICULTY_SETTINGS,
 } from './models/game.types';
 
 @Component({
@@ -28,6 +31,15 @@ export class AppComponent implements OnInit {
   /** Track if game is processing (prevents double-clicks) */
   isProcessing = false;
 
+  /** Difficulty levels offered in the picker */
+  readonly difficulties = DIFFICULTY_LEVELS;
+
+  /**
+   * Selected level. `hard` is the AI as it played before difficulty existed,
+   * so the default game is unchanged; the easier levels are opt-in.
+   */
+  difficulty: Difficulty = 'hard';
+
   constructor(
     private toast: NgToastService,
     public gameService: GameService,
@@ -35,7 +47,24 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.aiService.setDifficulty(this.difficulty);
     this.resetGame();
+  }
+
+  /** Display name for a difficulty level */
+  difficultyLabel(level: Difficulty): string {
+    return DIFFICULTY_SETTINGS[level].label;
+  }
+
+  /**
+   * Switch level. Takes effect from the AI's next move; the board is left
+   * alone so changing your mind mid-game does not throw the position away.
+   */
+  onDifficultyChange(level: Difficulty): void {
+    if (this.isProcessing || level === this.difficulty) return;
+
+    this.difficulty = level;
+    this.aiService.setDifficulty(level);
   }
 
   /** Get the CSS class for a cell based on its value */

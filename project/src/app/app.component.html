@@ -4,6 +4,18 @@
     <h1 class="game-title">CONNECT 4</h1>
   </header>
 
+  <!-- Difficulty -->
+  <div class="difficulty" role="group" aria-label="AI difficulty">
+    <span class="difficulty-title">Difficulty</span>
+    <div class="difficulty-options">
+      <button *ngFor="let level of difficulties" type="button" class="difficulty-button"
+        [class.difficulty-button--active]="level === difficulty" [attr.aria-pressed]="level === difficulty"
+        [disabled]="isProcessing" (click)="onDifficultyChange(level)">
+        {{ difficultyLabel(level) }}
+      </button>
+    </div>
+  </div>
+
   <!-- Game Board -->
   <div class="game-board">
     <div class="board-row" *ngFor="let row of rows">
