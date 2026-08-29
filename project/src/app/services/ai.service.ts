@@ -7,58 +7,134 @@ import {
     PLAYER_HUMAN,
     PLAYER_AI,
     Player,
+    Difficulty,
+    DIFFICULTY_SETTINGS,
 } from '../models/game.types';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AiService {
+    /**
+     * Magnitude of a forced win. Must dominate anything `scorePosition` can
+     * return (bounded well under a thousand) so the search never trades a mate
+     * for positional score.
+     */
+    private static readonly WIN_SCORE = 1_000_000;
+
+    /**
+     * Level in play. Defaults to `hard`, which is a depth-4 search with no
+     * randomness - exactly how this service behaved before difficulty levels
+     * existed, so callers that never set a level are unaffected and the AI
+     * stays deterministic.
+     */
+    private difficulty: Difficulty = 'hard';
+
+    /**
+     * Columns tried centre-out (3, 2, 4, 1, 5, 0, 6 on a standard board).
+     * Alpha-beta prunes hardest when the best move is searched first, and in
+     * Connect 4 that is nearly always the most central column still open. It
+     * also breaks ties toward the centre, which is where the strong moves are.
+     */
+    private static readonly COLUMN_ORDER: number[] = Array.from(
+        { length: BOARD_WIDTH },
+        (_, col) => col
+    ).sort(
+        (a, b) =>
+            Math.abs(a - (BOARD_WIDTH - 1) / 2) -
+            Math.abs(b - (BOARD_WIDTH - 1) / 2)
+    );
+
     constructor(private gameService: GameService) { }
+
+    /** Set the difficulty level used by subsequent moves */
+    setDifficulty(level: Difficulty): void {
+        this.difficulty = level;
+    }
+
+    /** Get the difficulty level currently in play */
+    getDifficulty(): Difficulty {
+        return this.difficulty;
+    }
 
     /** Make the AI's move using minimax algorithm */
     makeMove(): number | null {
-        const [col] = this.minimax(4, -Infinity, Infinity, true);
+        const { searchDepth, blunderChance } = DIFFICULTY_SETTINGS[this.difficulty];
+
+        if (blunderChance > 0 && Math.random() < blunderChance) {
+            return this.randomMove();
+        }
+
+        const [col] = this.minimax(searchDepth, -Infinity, Infinity);
         return col;
     }
 
-    /** Minimax algorithm with alpha-beta pruning */
+    /** Drop into a random playable column - how the easier levels miss things */
+    private randomMove(): number | null {
+        const validLocations = this.gameService.getValidLocations();
+        if (validLocations.length === 0) {
+            return null;
+        }
+        return validLocations[Math.floor(Math.random() * validLocations.length)];
+    }
+
+    /** Playable columns in search order */
+    private orderedValidLocations(): number[] {
+        return AiService.COLUMN_ORDER.filter(col => this.gameService.canPlay(col));
+    }
+
+    /**
+     * Minimax algorithm with alpha-beta pruning.
+     *
+     * Whose turn it is comes from the game state alone. `isTerminalNode` and
+     * `findWinningMove` already read the turn count to decide whose win a
+     * terminal node represents, so carrying a separate `maximizingPlayer`
+     * flag meant two sources of truth for one fact - and they agreed only
+     * because the caller happened to invoke this on the right parity.
+     */
     private minimax(
         depth: number,
         alpha: number,
-        beta: number,
-        maximizingPlayer: boolean
+        beta: number
     ): [number | null, number] {
-        const validLocations = this.gameService.getValidLocations();
+        const piece = this.gameService.getCurrentPlayer();
+        const validLocations = this.orderedValidLocations();
         const isTerminal = this.gameService.isTerminalNode();
 
         if (depth === 0 || isTerminal) {
             if (isTerminal) {
                 const winResult = this.gameService.findWinningMove();
-                if (winResult.result && winResult.player === PLAYER_AI) {
-                    return [winResult.col, 100000000000000];
-                } else if (winResult.result && winResult.player === PLAYER_HUMAN) {
-                    return [winResult.col, -10000000000000];
-                } else {
-                    return [null, 0];
+                if (winResult.result) {
+                    // Bias by the remaining depth so the same mate scores higher
+                    // the closer to the root it is found. Without this every win
+                    // and every loss is one flat constant: the AI dawdles when
+                    // winning, and when losing it sees all replies as equal and
+                    // stops even blocking. Losses are the exact negation, so it
+                    // plays the most resistant defence instead of giving up.
+                    const score = AiService.WIN_SCORE + depth;
+                    return winResult.player === PLAYER_AI
+                        ? [winResult.col, score]
+                        : [winResult.col, -score];
                 }
+                return [null, 0];
             } else {
                 return [null, this.scorePosition(PLAYER_AI)];
             }
         }
 
-        if (maximizingPlayer) {
+        if (piece === PLAYER_AI) {
             let value = -Infinity;
-            let column = validLocations[Math.floor(Math.random() * validLocations.length)];
+            let column = validLocations[0];
 
             for (const col of validLocations) {
                 const row = this.gameService.getColumnHeights()[col];
 
                 // Simulate move
-                this.gameService.setCellValue(row, col, PLAYER_AI);
+                this.gameService.setCellValue(row, col, piece);
                 this.gameService.incrementTurn();
                 this.gameService.getColumnHeights()[col]--;
 
-                const newScore = this.minimax(depth - 1, alpha, beta, false)[1];
+                const newScore = this.minimax(depth - 1, alpha, beta)[1];
 
                 // Undo move
                 this.gameService.setCellValue(row, col, EMPTY_CELL);
@@ -75,17 +151,17 @@ export class AiService {
             return [column, value];
         } else {
             let value = Infinity;
-            let column = validLocations[Math.floor(Math.random() * validLocations.length)];
+            let column = validLocations[0];
 
             for (const col of validLocations) {
                 const row = this.gameService.getColumnHeights()[col];
 
                 // Simulate move
-                this.gameService.setCellValue(row, col, PLAYER_HUMAN);
+                this.gameService.setCellValue(row, col, piece);
                 this.gameService.incrementTurn();
                 this.gameService.getColumnHeights()[col]--;
 
-                const newScore = this.minimax(depth - 1, alpha, beta, true)[1];
+                const newScore = this.minimax(depth - 1, alpha, beta)[1];
 
                 // Undo move
                 this.gameService.setCellValue(row, col, EMPTY_CELL);
@@ -186,52 +262,5 @@ export class AiService {
         }
 
         return score;
-    }
-
-    // ============================================================
-    // NEGAMAX ALGORITHM
-    // ============================================================
-
-    negaMax(alpha: number, beta: number, maxomin: boolean): number {
-        const board = this.gameService.getBoard();
-        const num = this.gameService.getColumnHeights();
-        const chance = this.gameService.getTurnCount();
-
-        if (chance === BOARD_WIDTH * BOARD_HEIGHT) return 0;
-
-        for (let i = 0; i < BOARD_WIDTH; i++) {
-            if (this.gameService.canPlay(i) && this.gameService.isWinningMove(i)) {
-                return Math.floor((BOARD_WIDTH * BOARD_HEIGHT + 1 - chance) / 2);
-            }
-        }
-
-        let maxi = Math.floor((BOARD_WIDTH * BOARD_HEIGHT - 1 - chance) / 2);
-
-        if (beta > maxi) {
-            beta = maxi;
-            if (alpha > beta) return beta;
-        }
-
-        for (let i = 0; i < BOARD_WIDTH; i++) {
-            if (this.gameService.canPlay(i)) {
-                if (maxomin) board[num[i]][i] = 1;
-                else board[num[i]][i] = 2;
-                num[i]--;
-                this.gameService.incrementTurn();
-
-                let score = -this.negaMax(-beta, -alpha, !maxomin);
-
-                this.gameService.decrementTurn();
-                num[i]++;
-                board[num[i]][i] = -1;
-
-                if (score >= beta) return score;
-                if (score > alpha) alpha = score;
-            }
-
-            return alpha;
-        }
-
-        return 0;
     }
 }
